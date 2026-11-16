@@ -7,7 +7,6 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   exclude:
-    - "**/*.graphql.dart"
     - "**/*.freezed.dart"
     - "**/*.g.dart"
     - build/**

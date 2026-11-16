@@ -1,8 +1,0 @@
-targets:
-  $default:
-    builders:
-      graphql_codegen:
-        options:
-          clients:
-            - graphql
-          assetsPath: lib/data/graphql/**.graphql

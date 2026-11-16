@@ -1,4 +1,4 @@
-# Rick and Morty API schema, from introspection of https://rickandmortyapi.com/graphql.
+# Rick and Morty API schema, from https://rickandmortyapi.com/graphql.
 # The API's depth limit hides nullability inside lists; those follow the API's source.
 
 type Query {

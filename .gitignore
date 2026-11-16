@@ -53,6 +53,5 @@ app.*.map.json
 CLAUDE.md
 
 # Generated code: run build_runner
-*.graphql.dart
 *.freezed.dart
 *.g.dart
