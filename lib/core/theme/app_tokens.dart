@@ -15,4 +15,10 @@ abstract final class AppTokens {
 
   static const kDotSize200 = 8.0;
   static const kSquareAspectRatio = 1.0;
+
+  // Character grid: cells up to this wide, square image plus two text lines.
+  static const kGridCellMaxWidth = 200.0;
+  static const kCharacterCardAspectRatio = 0.72;
+  // Start loading the next page when this close to the end of a list.
+  static const kLoadMoreDistance = 400.0;
 }

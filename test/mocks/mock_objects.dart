@@ -28,6 +28,11 @@ abstract final class MockObjects {
     info: PageInfo(next: 2),
   );
 
+  // A second page with no page after it.
+  static const charactersPageLast = CharactersPage(
+    characters: [Character(id: '2', name: 'Morty Smith', status: .alive)],
+  );
+
   // API JSON
 
   static const JsonMap characterJsonMinimal = {'id': '1'};
