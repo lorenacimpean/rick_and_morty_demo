@@ -1,7 +1,10 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:rick_and_morty_demo/core/di/app_dependencies.dart';
 import 'package:rick_and_morty_demo/core/theme/app_theme.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppDependencies.register();
   runApp(const MyApp());
 }
 
