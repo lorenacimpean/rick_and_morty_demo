@@ -20,7 +20,7 @@ sealed class CharactersState with _$CharactersState {
     required CharactersFilter filter,
     required List<Character> characters,
     required bool hasMore,
-    // Pages loaded so far, to know when the next one has arrived.
+    // Pages on screen; loadMore asks for one more.
     required int pageCount,
     @Default(false) bool isLoadingMore,
     // A failed refresh or next page, shown under the list that's still on screen.

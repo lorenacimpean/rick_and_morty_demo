@@ -24,7 +24,8 @@ void main() {
   Future<void> afterDebounce() =>
       Future<void>.delayed(CharactersViewModel.kSearchDebounce * 2);
 
-  void stubPages(Map<int, Stream<CharactersPage>> pages) =>
+  // Factories, because loadMore watches the earlier pages again.
+  void stubPages(Map<int, Stream<CharactersPage> Function()> pages) =>
       when(
         () => repository.watchCharacters(
           page: any(named: 'page'),
@@ -32,7 +33,8 @@ void main() {
         ),
       ).thenAnswer(
         (invocation) =>
-            pages[invocation.namedArguments[#page]] ?? const Stream.empty(),
+            pages[invocation.namedArguments[#page]]?.call() ??
+            const Stream.empty(),
       );
 
   void verifyWatched(int page, CharactersFilter filter, int times) =>
@@ -57,14 +59,14 @@ void main() {
 
   setUp(() => repository = MockCharactersRepository());
 
-  group('load', () {
+  group('init', () {
     blocTest<CharactersViewModel, CharactersState>(
       'emits the first page',
       build: () {
-        stubPages({1: Stream.value(firstPage)});
+        stubPages({1: () => Stream.value(firstPage)});
         return CharactersViewModel(repository);
       },
-      act: (viewModel) => viewModel.load(),
+      act: (viewModel) => viewModel.init(),
       expect: () => [success()],
       verify: (_) => verifyWatched(1, defaultFilter, 1),
     );
@@ -72,10 +74,10 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'emits an empty success when nothing matches',
       build: () {
-        stubPages({1: Stream.value(MockObjects.charactersPageMinimal)});
+        stubPages({1: () => Stream.value(MockObjects.charactersPageMinimal)});
         return CharactersViewModel(repository);
       },
-      act: (viewModel) => viewModel.load(),
+      act: (viewModel) => viewModel.init(),
       expect: () => [
         success(pages: [MockObjects.charactersPageMinimal]),
       ],
@@ -85,10 +87,10 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'emits the error type when the first page fails',
       build: () {
-        stubPages({1: Stream.error(noConnection)});
+        stubPages({1: () => Stream.error(noConnection)});
         return CharactersViewModel(repository);
       },
-      act: (viewModel) => viewModel.load(),
+      act: (viewModel) => viewModel.init(),
       expect: () => [
         const CharactersState.error(
           filter: defaultFilter,
@@ -101,10 +103,10 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'reports an unexpected error as generic',
       build: () {
-        stubPages({1: Stream.error(Exception('boom'))});
+        stubPages({1: () => Stream.error(Exception('boom'))});
         return CharactersViewModel(repository);
       },
-      act: (viewModel) => viewModel.load(),
+      act: (viewModel) => viewModel.init(),
       expect: () => [
         const CharactersState.error(filter: defaultFilter, error: .generic),
       ],
@@ -116,11 +118,14 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'appends the next page',
       build: () {
-        stubPages({1: Stream.value(firstPage), 2: Stream.value(lastPage)});
+        stubPages({
+          1: () => Stream.value(firstPage),
+          2: () => Stream.value(lastPage),
+        });
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.loadMore();
       },
@@ -135,11 +140,11 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'does nothing on the last page',
       build: () {
-        stubPages({1: Stream.value(lastPage)});
+        stubPages({1: () => Stream.value(lastPage)});
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.loadMore();
       },
@@ -154,11 +159,14 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'keeps the list and shows the error when the next page fails',
       build: () {
-        stubPages({1: Stream.value(firstPage), 2: Stream.error(noConnection)});
+        stubPages({
+          1: () => Stream.value(firstPage),
+          2: () => Stream.error(noConnection),
+        });
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.loadMore();
       },
@@ -175,11 +183,11 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'reloads with the trimmed name after the debounce',
       build: () {
-        stubPages({1: Stream.value(firstPage)});
+        stubPages({1: () => Stream.value(firstPage)});
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.search('  Rick ');
         await afterDebounce();
@@ -195,11 +203,11 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'clears the name for a blank search',
       build: () {
-        stubPages({1: Stream.value(firstPage)});
+        stubPages({1: () => Stream.value(firstPage)});
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.search('Rick');
         await afterDebounce();
@@ -219,11 +227,11 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'does not reload when the filter stays the same',
       build: () {
-        stubPages({1: Stream.value(firstPage)});
+        stubPages({1: () => Stream.value(firstPage)});
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.search('');
         await afterDebounce();
@@ -237,11 +245,11 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'reloads with the status',
       build: () {
-        stubPages({1: Stream.value(firstPage)});
+        stubPages({1: () => Stream.value(firstPage)});
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.selectStatus(.dead);
       },
@@ -258,13 +266,13 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'starts over after the first page failed',
       build: () {
-        stubPages({1: Stream.error(noConnection)});
+        stubPages({1: () => Stream.error(noConnection)});
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
-        stubPages({1: Stream.value(firstPage)});
+        stubPages({1: () => Stream.value(firstPage)});
         viewModel.retry();
       },
       expect: () => [
@@ -281,15 +289,21 @@ void main() {
     blocTest<CharactersViewModel, CharactersState>(
       'watches the loaded pages and the failed one again',
       build: () {
-        stubPages({1: Stream.value(firstPage), 2: Stream.error(noConnection)});
+        stubPages({
+          1: () => Stream.value(firstPage),
+          2: () => Stream.error(noConnection),
+        });
         return CharactersViewModel(repository);
       },
       act: (viewModel) async {
-        viewModel.load();
+        viewModel.init();
         await tick();
         viewModel.loadMore();
         await tick();
-        stubPages({1: Stream.value(firstPage), 2: Stream.value(lastPage)});
+        stubPages({
+          1: () => Stream.value(firstPage),
+          2: () => Stream.value(lastPage),
+        });
         viewModel.retry();
       },
       expect: () => [

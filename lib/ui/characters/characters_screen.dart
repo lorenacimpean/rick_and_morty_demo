@@ -28,7 +28,7 @@ class _CharactersScreenState extends State<CharactersScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel.load();
+    _viewModel.init();
   }
 
   @override
