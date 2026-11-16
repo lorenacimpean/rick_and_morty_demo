@@ -23,10 +23,25 @@ class CharactersScreen extends StatefulWidget {
 }
 
 class _CharactersScreenState extends State<CharactersScreen> {
+  final _viewModel = getIt<CharactersViewModel>();
+
+  @override
+  void initState() {
+    super.initState();
+    _viewModel.load();
+  }
+
+  @override
+  void dispose() {
+    _viewModel.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<CharactersViewModel>()..load(),
+    // .value: the screen owns the view model, so the provider doesn't close it.
+    return BlocProvider.value(
+      value: _viewModel,
       child: const AppScaffold.tab(
         title: 'Characters',
         body: _CharactersLayout(),
