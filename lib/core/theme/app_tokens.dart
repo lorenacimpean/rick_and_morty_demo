@@ -10,4 +10,6 @@ abstract final class AppTokens {
   static const kRadius200 = 8.0;
   static const kRadius400 = 16.0;
   static const kRadiusFull = 999.0;
+
+  static const kIconSize1200 = 48.0;
 }
