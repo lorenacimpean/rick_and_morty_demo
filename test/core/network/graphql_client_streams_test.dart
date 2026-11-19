@@ -115,9 +115,13 @@ void main() {
       final options =
           verify(() => client.watchQuery<Object?>(captureAny())).captured.single
               as WatchQueryOptions<Object?>;
+      // having() compares maps by content; a record would compare them by identity.
       expect(
-        (options.document, options.variables, options.fetchResults),
-        (CharacterQueries.list, {'page': 1}, true),
+        options,
+        isA<WatchQueryOptions<Object?>>()
+            .having((o) => o.document, 'document', CharacterQueries.list)
+            .having((o) => o.variables, 'variables', {'page': 1})
+            .having((o) => o.fetchResults, 'fetchResults', isTrue),
       );
     });
 

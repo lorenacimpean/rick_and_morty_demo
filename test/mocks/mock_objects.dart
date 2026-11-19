@@ -5,8 +5,10 @@ import 'package:rick_and_morty_demo/data/models/character.dart';
 import 'package:rick_and_morty_demo/data/models/character_details.dart';
 import 'package:rick_and_morty_demo/data/models/characters_page.dart';
 import 'package:rick_and_morty_demo/data/models/episode.dart';
+import 'package:rick_and_morty_demo/data/models/episodes_page.dart';
 import 'package:rick_and_morty_demo/data/models/page_info.dart';
 import 'package:rick_and_morty_demo/data/models/place.dart';
+import 'package:rick_and_morty_demo/data/models/season.dart';
 
 abstract final class MockObjects {
   static const kImageUrl =
@@ -64,6 +66,17 @@ abstract final class MockObjects {
     episodes: [episodeMaximal],
   );
 
+  static const episodesPageMinimal = EpisodesPage();
+
+  static const episodesPageMaximal = EpisodesPage(
+    episodes: [episodeMaximal],
+    info: PageInfo(next: 2, pages: 3),
+  );
+
+  static const seasonMinimal = Season(number: 0, episodes: []);
+
+  static const seasonMaximal = Season(number: 1, episodes: [episodeMaximal]);
+
   // API JSON
 
   static const JsonMap characterJsonMinimal = {'id': '1'};
@@ -101,6 +114,13 @@ abstract final class MockObjects {
     'origin': {'name': 'Earth (C-137)'},
     'location': {'name': 'Citadel of Ricks'},
     'episode': [episodeJsonMaximal],
+  };
+
+  static const JsonMap episodesJsonMinimal = {};
+
+  static const JsonMap episodesJsonMaximal = {
+    'info': {'next': 2, 'pages': 3},
+    'results': [episodeJsonMaximal],
   };
 
   // Query results
