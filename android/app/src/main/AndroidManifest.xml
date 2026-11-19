@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the Rick and Morty API in every build type, not only debug. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="rick_and_morty_demo"
         android:name="${applicationName}"
