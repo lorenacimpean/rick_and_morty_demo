@@ -1,7 +1,7 @@
 FLUTTER := fvm flutter
 DART := fvm dart
 
-.PHONY: build clean patrol
+.PHONY: build clean integration
 
 # Fetches packages and generates the freezed and json code.
 build:
@@ -15,6 +15,6 @@ clean:
 	rm -rf ios/Pods ios/Podfile.lock ios/.symlinks ios/build
 	rm -rf android/.gradle android/build android/app/build android/.cxx android/app/.cxx
 
-# UI tests on a booted emulator or simulator. patrol_cli uses the pinned Flutter.
-patrol:
-	PATROL_FLUTTER_COMMAND="$(FLUTTER)" patrol test
+# UI tests on the booted emulator or simulator (pass -d <device> via ARGS).
+integration:
+	$(FLUTTER) test integration_test $(ARGS)
