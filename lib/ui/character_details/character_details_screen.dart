@@ -8,9 +8,10 @@ import 'package:rick_and_morty_demo/ui/character_details/character_details_state
 import 'package:rick_and_morty_demo/ui/character_details/character_details_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
-import 'package:rick_and_morty_demo/ui/shared/components/labels/status_label.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/cards/info_card.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/labels/app_label.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_scaffold.dart';
-import 'package:rick_and_morty_demo/ui/shared/components/lists/app_list_tile.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/lists/episode_tile.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/lists/section_header.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/media/character_image.dart';
 
@@ -85,36 +86,41 @@ class _CharacterDetailsContent extends StatelessWidget {
       slivers: [
         SliverPadding(
           padding: const .all(AppTokens.kSpacing400),
-          sliver: SliverToBoxAdapter(child: _Header(character: character)),
+          sliver: SliverToBoxAdapter(child: _Profile(character: character)),
         ),
-        const SliverToBoxAdapter(child: SectionHeader(title: 'Info')),
-        SliverList.list(
-          children: [
-            AppListTile(title: character.gender, subtitle: 'Gender'),
-            if (character.type.isNotEmpty)
-              AppListTile(title: character.type, subtitle: 'Type'),
-            AppListTile(title: character.origin.name, subtitle: 'Origin'),
-            AppListTile(
-              title: character.location.name,
-              subtitle: 'Last known location',
-            ),
-          ],
+        SliverPadding(
+          padding: const .symmetric(horizontal: AppTokens.kSpacing400),
+          sliver: SliverToBoxAdapter(child: _Facts(character: character)),
         ),
-        const SliverToBoxAdapter(child: SectionHeader(title: 'Episodes')),
-        SliverList.builder(
-          itemCount: character.episodes.length,
-          itemBuilder: (_, index) =>
-              _EpisodeItem(episode: character.episodes[index]),
+        SliverToBoxAdapter(
+          child: SectionHeader(
+            title: 'Episodes (${character.episodes.length})',
+          ),
+        ),
+        SliverPadding(
+          padding: const .fromLTRB(
+            AppTokens.kSpacing400,
+            0,
+            AppTokens.kSpacing400,
+            AppTokens.kSpacing400,
+          ),
+          sliver: SliverList.separated(
+            itemCount: character.episodes.length,
+            itemBuilder: (_, index) =>
+                _EpisodeItem(episode: character.episodes[index]),
+            separatorBuilder: (_, _) =>
+                const SizedBox(height: AppTokens.kSpacing200),
+          ),
         ),
       ],
     );
   }
 }
 
-class _Header extends StatelessWidget {
+class _Profile extends StatelessWidget {
   final CharacterDetails character;
 
-  const _Header({required this.character});
+  const _Profile({required this.character});
 
   @override
   Widget build(BuildContext context) {
@@ -132,17 +138,38 @@ class _Header extends StatelessWidget {
           textAlign: .center,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
-        Row(
-          mainAxisAlignment: .center,
+        Wrap(
+          alignment: .center,
           spacing: AppTokens.kSpacing200,
+          runSpacing: AppTokens.kSpacing200,
           children: [
-            StatusLabel.of(character.status),
-            Text(
-              character.species,
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
+            AppLabel.status(character.status),
+            AppLabel.text(character.species),
+            AppLabel.text(character.gender),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _Facts extends StatelessWidget {
+  final CharacterDetails character;
+
+  const _Facts({required this.character});
+
+  @override
+  Widget build(BuildContext context) {
+    return InfoCard(
+      rows: [
+        (icon: Icons.public, label: 'Origin', value: character.origin.name),
+        (
+          icon: Icons.place_outlined,
+          label: 'Last known location',
+          value: character.location.name,
+        ),
+        if (character.type.isNotEmpty)
+          (icon: Icons.science_outlined, label: 'Type', value: character.type),
       ],
     );
   }
@@ -155,9 +182,10 @@ class _EpisodeItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppListTile(
-      title: episode.name,
-      subtitle: '${episode.code} · ${episode.airDate}',
+    return EpisodeTile(
+      code: episode.code,
+      name: episode.name,
+      airDate: episode.airDate,
     );
   }
 }

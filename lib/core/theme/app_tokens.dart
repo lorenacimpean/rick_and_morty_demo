@@ -23,4 +23,5 @@ abstract final class AppTokens {
   static const kLoadMoreDistance = 400.0;
 
   static const kDetailsImageMaxWidth = 320.0;
+  static const kBadgeSize = 48.0;
 }

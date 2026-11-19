@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/app_preview.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/labels/app_label.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/labels/status_label.dart';
 
 const _kGroup = 'StatusLabel';
@@ -12,3 +13,9 @@ Widget statusLabelDead() => const StatusLabel.dead();
 
 @AppPreview(group: _kGroup, name: 'Unknown')
 Widget statusLabelUnknown() => const StatusLabel.unknown();
+
+@AppPreview(group: 'AppLabel', name: 'Text')
+Widget appLabelText() => const AppLabel.text('Human');
+
+@AppPreview(group: 'AppLabel', name: 'Status')
+Widget appLabelStatus() => const AppLabel.status(.dead);

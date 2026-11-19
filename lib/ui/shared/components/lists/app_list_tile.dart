@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 class AppListTile extends StatelessWidget {
   final String title;
   final String? subtitle;
+  final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
 
@@ -10,6 +11,7 @@ class AppListTile extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.leading,
     this.trailing,
     this.onTap,
   });
@@ -19,6 +21,7 @@ class AppListTile extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     return ListTile(
       onTap: onTap,
+      leading: leading,
       title: Text(title, style: textTheme.titleMedium),
       subtitle: switch (subtitle) {
         final text? => Text(text, style: textTheme.bodyMedium),

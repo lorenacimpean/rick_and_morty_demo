@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/app_preview.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/cards/info_card.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/cards/character_card.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/labels/status_label.dart';
 
@@ -22,4 +23,16 @@ Widget characterCardLongName() => const CharacterCard(
   name: 'Abradolf Lincler the Second of His Name',
   species: 'Humanoid',
   status: StatusLabel.unknown(),
+);
+
+@AppPreview(group: 'InfoCard', name: 'Standard')
+Widget infoCardStandard() => const InfoCard(
+  rows: [
+    (icon: Icons.public, label: 'Origin', value: 'Earth (C-137)'),
+    (
+      icon: Icons.place_outlined,
+      label: 'Last known location',
+      value: 'Citadel',
+    ),
+  ],
 );

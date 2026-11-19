@@ -1,11 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
 import 'package:rick_and_morty_demo/data/models/character_status.dart';
-
-enum _Status { alive, dead, unknown }
+import 'package:rick_and_morty_demo/ui/shared/character_status_style.dart';
 
 class StatusLabel extends StatelessWidget {
-  final _Status _status;
+  final CharacterStatus _status;
 
   const StatusLabel.alive({super.key}) : _status = .alive;
 
@@ -13,30 +12,17 @@ class StatusLabel extends StatelessWidget {
 
   const StatusLabel.unknown({super.key}) : _status = .unknown;
 
-  factory StatusLabel.of(CharacterStatus status) => switch (status) {
-    .alive => const StatusLabel.alive(),
-    .dead => const StatusLabel.dead(),
-    .unknown => const StatusLabel.unknown(),
-  };
+  const StatusLabel.of(this._status, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final color = switch (_status) {
-      .alive => colors.primary,
-      .dead => colors.error,
-      .unknown => colors.onSurfaceVariant,
-    };
+    final theme = Theme.of(context);
     return Row(
       mainAxisSize: .min,
       spacing: AppTokens.kSpacing100,
       children: [
-        _Dot(color: color),
-        Text(switch (_status) {
-          .alive => 'Alive',
-          .dead => 'Dead',
-          .unknown => 'Unknown',
-        }, style: Theme.of(context).textTheme.labelMedium),
+        _Dot(color: _status.color(theme.colorScheme)),
+        Text(_status.label, style: theme.textTheme.labelMedium),
       ],
     );
   }
