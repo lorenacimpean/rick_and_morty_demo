@@ -14,6 +14,7 @@ concurrency:
 permissions:
   contents: read
 
+# The jobs run in parallel; each one is a separate check on the PR.
 jobs:
   analyze:
     name: Analyze
@@ -53,8 +54,6 @@ jobs:
 
   integration:
     name: Integration tests (Android)
-    # Only once the code builds and unit tests pass: the emulator is the slow part.
-    needs: [analyze, unit]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
