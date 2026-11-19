@@ -55,3 +55,7 @@ CLAUDE.md
 # Generated code: run build_runner
 *.freezed.dart
 *.g.dart
+
+# Patrol: generated test bundle and local dart-defines
+**/test_bundle.dart
+.patrol.env
