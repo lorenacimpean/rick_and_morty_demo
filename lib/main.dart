@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/di/app_dependencies.dart';
+import 'package:rick_and_morty_demo/core/router/app_router.dart';
 import 'package:rick_and_morty_demo/core/theme/app_theme.dart';
-import 'package:rick_and_morty_demo/ui/characters/characters_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,12 +14,11 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The tab router replaces home in a later step.
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Rick and Morty Demo',
       theme: AppTheme.dark(),
       debugShowCheckedModeBanner: false,
-      home: const CharactersScreen(),
+      routerConfig: AppRouter.router,
     );
   }
 }
