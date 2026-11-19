@@ -27,9 +27,11 @@ class CharacterCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: .stretch,
           children: [
-            AspectRatio(
-              aspectRatio: AppTokens.kSquareAspectRatio,
-              child: _CharacterImage(url: imageUrl),
+            Expanded(
+              child: AspectRatio(
+                aspectRatio: AppTokens.kSquareAspectRatio,
+                child: _CharacterImage(url: imageUrl),
+              ),
             ),
             Padding(
               padding: const .all(AppTokens.kSpacing300),
