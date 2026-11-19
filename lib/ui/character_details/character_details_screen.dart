@@ -127,12 +127,7 @@ class _Profile extends StatelessWidget {
     return Column(
       spacing: AppTokens.kSpacing300,
       children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppTokens.kDetailsImageMaxWidth,
-          ),
-          child: CharacterImage.rounded(url: character.imageUrl),
-        ),
+        CharacterImage.rounded(url: character.imageUrl),
         Text(
           character.name,
           textAlign: .center,
