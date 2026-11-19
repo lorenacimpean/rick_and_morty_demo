@@ -14,9 +14,11 @@ import 'package:rick_and_morty_demo/ui/favorites/favorites_view_model.dart';
 final getIt = GetIt.instance;
 
 abstract final class AppDependencies {
-  static Future<void> register() async {
+  static Future<void> register({Link? link}) async {
     getIt
-      ..registerSingleton<GraphQLClient>(await GraphQLClientFactory.create())
+      ..registerSingleton<GraphQLClient>(
+        await GraphQLClientFactory.create(link: link),
+      )
       ..registerSingleton(await FavoritesRepository.open())
       ..registerLazySingleton(() => CharactersRepository(getIt()))
       ..registerLazySingleton(() => EpisodesRepository(getIt()))
