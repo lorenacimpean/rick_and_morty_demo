@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:rick_and_morty_demo/core/network/app_exception.dart';
 import 'package:rick_and_morty_demo/core/network/graphql_client_streams.dart';
 import 'package:rick_and_morty_demo/data/graphql/character_queries.dart';
+import 'package:rick_and_morty_demo/data/models/character.dart';
 import 'package:rick_and_morty_demo/data/models/characters_filter.dart';
 import 'package:rick_and_morty_demo/data/repos/characters_repository.dart';
 
@@ -143,6 +144,75 @@ void main() {
 
       // Assert
       expect(sentVariables(), {'id': '42'});
+    });
+  });
+  group('watchCharactersByIds', () {
+    void stubCharacters(List<Object?>? characters) => when(() => query.stream)
+        .thenAnswer(
+          (_) => Stream.value(
+            MockObjects.result(data: {'charactersByIds': characters}),
+          ),
+        );
+
+    test(
+      'emits no characters without a request when there are no ids',
+      () async {
+        // Act
+        final stream = repository.watchCharactersByIds([]);
+
+        // Assert
+        await expectLater(stream, emitsInOrder([<Character>[], emitsDone]));
+        verifyNever(() => client.watchQuery<Object?>(any()));
+      },
+    );
+
+    test('emits the characters parsed from the response', () async {
+      // Arrange
+      stubCharacters([MockObjects.characterJsonMaximal]);
+
+      // Act
+      final stream = repository.watchCharactersByIds(['1']);
+
+      // Assert
+      await expectLater(stream, emits([MockObjects.characterMaximal]));
+      verify(() => client.watchQuery<Object?>(any())).called(1);
+    });
+
+    test('leaves out ids the API does not know', () async {
+      // Arrange
+      stubCharacters([null, MockObjects.characterJsonMinimal]);
+
+      // Act
+      final stream = repository.watchCharactersByIds(['99999', '1']);
+
+      // Assert
+      await expectLater(stream, emits([MockObjects.characterMinimal]));
+      verify(() => client.watchQuery<Object?>(any())).called(1);
+    });
+
+    test('emits no characters when the list is missing', () async {
+      // Arrange
+      stubCharacters(null);
+
+      // Act
+      final stream = repository.watchCharactersByIds(['1']);
+
+      // Assert
+      await expectLater(stream, emits(<Character>[]));
+      verify(() => client.watchQuery<Object?>(any())).called(1);
+    });
+
+    test('sends the ids', () async {
+      // Arrange
+      stubCharacters([]);
+
+      // Act
+      await repository.watchCharactersByIds(['1', '2']).drain<void>();
+
+      // Assert
+      expect(sentVariables(), {
+        'ids': ['1', '2'],
+      });
     });
   });
 }

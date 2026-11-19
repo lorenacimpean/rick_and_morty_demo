@@ -14,6 +14,7 @@ void main() {
   const details = MockObjects.characterDetailsMaximal;
 
   late MockCharactersRepository repository;
+  late MockFavoritesRepository favorites;
 
   Future<void> tick() => Future<void>.delayed(Duration.zero);
 
@@ -21,14 +22,19 @@ void main() {
   void stubCharacter(Stream<CharacterDetails> Function() watch) =>
       when(() => repository.watchCharacter(id)).thenAnswer((_) => watch());
 
-  setUp(() => repository = MockCharactersRepository());
+  setUp(() {
+    repository = MockCharactersRepository();
+    favorites = MockFavoritesRepository();
+    // Not a favorite unless a test says otherwise.
+    when(() => favorites.watchIds()).thenAnswer((_) => Stream.value({}));
+  });
 
   group('init', () {
     blocTest<CharacterDetailsViewModel, CharacterDetailsState>(
       'emits the character',
       build: () {
         stubCharacter(() => Stream.value(details));
-        return CharacterDetailsViewModel(repository, id);
+        return CharacterDetailsViewModel(repository, favorites, id);
       },
       act: (viewModel) => viewModel.init(),
       expect: () => [const CharacterDetailsState.success(details)],
@@ -39,7 +45,7 @@ void main() {
       'emits the error type when the character fails to load',
       build: () {
         stubCharacter(() => Stream.error(const AppException(.notFound)));
-        return CharacterDetailsViewModel(repository, id);
+        return CharacterDetailsViewModel(repository, favorites, id);
       },
       act: (viewModel) => viewModel.init(),
       expect: () => [const CharacterDetailsState.error(.notFound)],
@@ -50,7 +56,7 @@ void main() {
       'reports an unexpected error as generic',
       build: () {
         stubCharacter(() => Stream.error(Exception('boom')));
-        return CharacterDetailsViewModel(repository, id);
+        return CharacterDetailsViewModel(repository, favorites, id);
       },
       act: (viewModel) => viewModel.init(),
       expect: () => [const CharacterDetailsState.error(.generic)],
@@ -66,7 +72,7 @@ void main() {
             details,
           ]),
         );
-        return CharacterDetailsViewModel(repository, id);
+        return CharacterDetailsViewModel(repository, favorites, id);
       },
       act: (viewModel) => viewModel.init(),
       expect: () => [
@@ -84,7 +90,7 @@ void main() {
       'shows loading, then watches the character again',
       build: () {
         stubCharacter(() => Stream.error(const AppException(.noConnection)));
-        return CharacterDetailsViewModel(repository, id);
+        return CharacterDetailsViewModel(repository, favorites, id);
       },
       act: (viewModel) async {
         viewModel.init();
@@ -98,6 +104,52 @@ void main() {
         const CharacterDetailsState.success(details),
       ],
       verify: (_) => verify(() => repository.watchCharacter(id)).called(2),
+    );
+  });
+  group('favorite', () {
+    blocTest<CharacterDetailsViewModel, CharacterDetailsState>(
+      'marks the character as a favorite when its id is saved',
+      build: () {
+        stubCharacter(() => Stream.value(details));
+        when(() => favorites.watchIds()).thenAnswer((_) => Stream.value({id}));
+        return CharacterDetailsViewModel(repository, favorites, id);
+      },
+      act: (viewModel) => viewModel.init(),
+      expect: () => [
+        const CharacterDetailsState.success(details, isFavorite: true),
+      ],
+      verify: (_) => verify(() => favorites.watchIds()).called(1),
+    );
+
+    blocTest<CharacterDetailsViewModel, CharacterDetailsState>(
+      'emits again when the favorite changes',
+      build: () {
+        stubCharacter(() => Stream.value(details));
+        when(() => favorites.watchIds()).thenAnswer(
+          (_) => Stream.fromIterable([
+            <String>{},
+            {id},
+          ]),
+        );
+        return CharacterDetailsViewModel(repository, favorites, id);
+      },
+      act: (viewModel) => viewModel.init(),
+      expect: () => [
+        const CharacterDetailsState.success(details),
+        const CharacterDetailsState.success(details, isFavorite: true),
+      ],
+      verify: (_) => verify(() => favorites.watchIds()).called(1),
+    );
+
+    blocTest<CharacterDetailsViewModel, CharacterDetailsState>(
+      'toggleFavorite toggles the character id',
+      build: () {
+        when(() => favorites.toggle(id)).thenAnswer((_) async {});
+        return CharacterDetailsViewModel(repository, favorites, id);
+      },
+      act: (viewModel) => viewModel.toggleFavorite(),
+      expect: () => <CharacterDetailsState>[],
+      verify: (_) => verify(() => favorites.toggle(id)).called(1),
     );
   });
 }

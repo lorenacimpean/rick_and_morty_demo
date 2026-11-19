@@ -11,6 +11,8 @@ sealed class CharacterDetailsState with _$CharacterDetailsState {
   const factory CharacterDetailsState.error(AppErrorType error) =
       CharacterDetailsError;
 
-  const factory CharacterDetailsState.success(CharacterDetails character) =
-      CharacterDetailsSuccess;
+  const factory CharacterDetailsState.success(
+    CharacterDetails character, {
+    @Default(false) bool isFavorite,
+  }) = CharacterDetailsSuccess;
 }

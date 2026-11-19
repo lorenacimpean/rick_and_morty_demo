@@ -44,21 +44,24 @@ abstract final class AppRouter {
           _tab(
             AppRoutes.characters,
             const CharactersScreen(),
-            routes: [_characterDetails],
+            routes: [_characterDetails(backTo: AppRoutes.characters)],
           ),
           _tab(AppRoutes.episodes, const EpisodesScreen()),
-          _tab(AppRoutes.favorites, const FavoritesScreen()),
+          _tab(
+            AppRoutes.favorites,
+            const FavoritesScreen(),
+            routes: [_characterDetails(backTo: AppRoutes.favorites)],
+          ),
         ],
       ),
     ],
   );
 
-  // /characters/:id, inside the Characters tab so the bottom bar stays.
-  static final _characterDetails = GoRoute(
+  // :id under a tab, so the bottom bar stays. One per tab that opens characters.
+  static GoRoute _characterDetails({required String backTo}) => GoRoute(
     path: ':$_kIdParam',
     // Ids are numbers; anything else (e.g. from a deep link) goes back to the list.
-    redirect: (_, state) =>
-        _characterId(state) == null ? AppRoutes.characters : null,
+    redirect: (_, state) => _characterId(state) == null ? backTo : null,
     builder: (_, state) =>
         CharacterDetailsScreen(id: _characterId(state) ?? ''),
   );

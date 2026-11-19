@@ -4,17 +4,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/di/app_dependencies.dart';
 import 'package:rick_and_morty_demo/core/router/app_routes.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
-import 'package:rick_and_morty_demo/data/models/character.dart';
 import 'package:rick_and_morty_demo/data/models/character_status.dart';
 import 'package:rick_and_morty_demo/ui/characters/characters_state.dart';
 import 'package:rick_and_morty_demo/ui/characters/characters_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/buttons/app_choice_chips.dart';
-import 'package:rick_and_morty_demo/ui/shared/components/cards/character_card.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/cards/character_grid.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/paging_footer.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/inputs/app_search_field.dart';
-import 'package:rick_and_morty_demo/ui/shared/components/labels/status_label.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_scaffold.dart';
 
 class CharactersScreen extends StatefulWidget {
@@ -153,40 +151,13 @@ class _CharactersGrid extends StatelessWidget {
       },
       child: CustomScrollView(
         slivers: [
-          SliverPadding(
-            padding: const .symmetric(horizontal: AppTokens.kSpacing400),
-            sliver: SliverGrid.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: AppTokens.kGridCellMaxWidth,
-                childAspectRatio: AppTokens.kCharacterCardAspectRatio,
-                mainAxisSpacing: AppTokens.kSpacing300,
-                crossAxisSpacing: AppTokens.kSpacing300,
-              ),
-              itemCount: state.characters.length,
-              itemBuilder: (_, index) =>
-                  _CharacterItem(character: state.characters[index]),
-            ),
+          CharacterGrid(
+            characters: state.characters,
+            onTap: (character) => context.go(AppRoutes.character(character.id)),
           ),
           SliverToBoxAdapter(child: _GridFooter(state: state)),
         ],
       ),
-    );
-  }
-}
-
-class _CharacterItem extends StatelessWidget {
-  final Character character;
-
-  const _CharacterItem({required this.character});
-
-  @override
-  Widget build(BuildContext context) {
-    return CharacterCard(
-      imageUrl: character.imageUrl,
-      name: character.name,
-      species: character.species,
-      status: StatusLabel.of(character.status),
-      onTap: () => context.go(AppRoutes.character(character.id)),
     );
   }
 }

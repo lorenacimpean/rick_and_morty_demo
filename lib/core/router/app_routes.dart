@@ -4,4 +4,6 @@ abstract final class AppRoutes {
   static const favorites = '/favorites';
 
   static String character(String id) => '$characters/$id';
+
+  static String favoriteCharacter(String id) => '$favorites/$id';
 }

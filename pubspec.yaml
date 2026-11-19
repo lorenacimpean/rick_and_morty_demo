@@ -45,6 +45,7 @@ dependencies:
   gql: ^1.0.1
   flutter_bloc: ^9.1.1
   go_router: ^18.1.4
+  hive_ce: ^2.23.3
 
 dev_dependencies:
   flutter_test:

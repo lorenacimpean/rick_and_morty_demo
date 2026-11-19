@@ -6,6 +6,7 @@ abstract final class CharacterQueries {
   static final details = gql(
     _kDetails + kCharacterSummaryFragment + kEpisodeSummaryFragment,
   );
+  static final byIds = gql(_kByIds + kCharacterSummaryFragment);
 }
 
 // Raw strings: GraphQL variables start with $.
@@ -38,6 +39,14 @@ query Character($id: ID!) {
     episode {
       ...EpisodeSummary
     }
+  }
+}
+''';
+
+const _kByIds = r'''
+query CharactersByIds($ids: [ID!]!) {
+  charactersByIds(ids: $ids) {
+    ...CharacterSummary
   }
 }
 ''';

@@ -7,6 +7,7 @@ import 'package:rick_and_morty_demo/data/models/episode.dart';
 import 'package:rick_and_morty_demo/ui/character_details/character_details_state.dart';
 import 'package:rick_and_morty_demo/ui/character_details/character_details_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/buttons/favorite_button.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/cards/info_card.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/labels/app_label.dart';
@@ -60,6 +61,13 @@ class _CharacterDetailsLayout extends StatelessWidget {
           CharacterDetailsSuccess(:final character) => character.name,
           _ => '',
         },
+        actions: [
+          if (state case CharacterDetailsSuccess(:final isFavorite))
+            FavoriteButton(
+              isFavorite: isFavorite,
+              onTap: viewModel.toggleFavorite,
+            ),
+        ],
         body: switch (state) {
           CharacterDetailsLoading() => const StateView.loading(),
           CharacterDetailsError(:final error) => StateView.error(

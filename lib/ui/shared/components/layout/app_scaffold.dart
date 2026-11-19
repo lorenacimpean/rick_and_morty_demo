@@ -7,6 +7,8 @@ class AppScaffold extends StatelessWidget {
   final Widget body;
   // Turns on pull to refresh. The body must be scrollable.
   final RefreshCallback? onRefresh;
+  // App bar buttons on the right.
+  final List<Widget>? actions;
   final _AppScaffoldKind _kind;
 
   const AppScaffold.tab({
@@ -14,6 +16,7 @@ class AppScaffold extends StatelessWidget {
     required this.title,
     required this.body,
     this.onRefresh,
+    this.actions,
   }) : _kind = .tab;
 
   const AppScaffold.details({
@@ -21,6 +24,7 @@ class AppScaffold extends StatelessWidget {
     required this.title,
     required this.body,
     this.onRefresh,
+    this.actions,
   }) : _kind = .details;
 
   @override
@@ -42,6 +46,7 @@ class AppScaffold extends StatelessWidget {
             .details => textTheme.titleLarge,
           },
         ),
+        actions: actions,
       ),
       body: switch (onRefresh) {
         final refresh? => RefreshIndicator(onRefresh: refresh, child: body),
