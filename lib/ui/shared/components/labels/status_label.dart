@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
+import 'package:rick_and_morty_demo/data/models/character_status.dart';
 
 enum _Status { alive, dead, unknown }
 
@@ -11,6 +12,12 @@ class StatusLabel extends StatelessWidget {
   const StatusLabel.dead({super.key}) : _status = .dead;
 
   const StatusLabel.unknown({super.key}) : _status = .unknown;
+
+  factory StatusLabel.of(CharacterStatus status) => switch (status) {
+    .alive => const StatusLabel.alive(),
+    .dead => const StatusLabel.dead(),
+    .unknown => const StatusLabel.unknown(),
+  };
 
   @override
   Widget build(BuildContext context) {

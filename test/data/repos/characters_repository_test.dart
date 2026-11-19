@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:graphql/client.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:rick_and_morty_demo/core/network/app_exception.dart';
 import 'package:rick_and_morty_demo/core/network/graphql_client_streams.dart';
 import 'package:rick_and_morty_demo/data/graphql/character_queries.dart';
 import 'package:rick_and_morty_demo/data/models/characters_filter.dart';
@@ -91,6 +92,57 @@ void main() {
 
       // Assert
       expect(sentVariables(), {'page': 1, 'filter': <String, Object?>{}});
+    });
+  });
+  group('watchCharacter', () {
+    void stubCharacter(JsonMap? character) => when(() => query.stream)
+        .thenAnswer(
+          (_) =>
+              Stream.value(MockObjects.result(data: {'character': character})),
+        );
+
+    test('emits the details parsed from the response', () async {
+      // Arrange
+      stubCharacter(MockObjects.characterDetailsJsonMaximal);
+
+      // Act
+      final stream = repository.watchCharacter('1');
+
+      // Assert
+      await expectLater(stream, emits(MockObjects.characterDetailsMaximal));
+      verify(() => client.watchQuery<Object?>(any())).called(1);
+    });
+
+    test('emits notFound when the API returns no character', () async {
+      // Arrange
+      stubCharacter(null);
+
+      // Act
+      final stream = repository.watchCharacter('99999');
+
+      // Assert
+      await expectLater(
+        stream,
+        emitsError(
+          isA<AppException>().having(
+            (error) => error.type,
+            'type',
+            AppErrorType.notFound,
+          ),
+        ),
+      );
+      verify(() => client.watchQuery<Object?>(any())).called(1);
+    });
+
+    test('sends the id', () async {
+      // Arrange
+      stubCharacter(MockObjects.characterDetailsJsonMinimal);
+
+      // Act
+      await repository.watchCharacter('42').drain<void>();
+
+      // Assert
+      expect(sentVariables(), {'id': '42'});
     });
   });
 }

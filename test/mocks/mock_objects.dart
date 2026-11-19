@@ -2,8 +2,11 @@ import 'package:graphql/client.dart';
 import 'package:rick_and_morty_demo/core/network/graphql_client_streams.dart';
 import 'package:rick_and_morty_demo/data/graphql/character_queries.dart';
 import 'package:rick_and_morty_demo/data/models/character.dart';
+import 'package:rick_and_morty_demo/data/models/character_details.dart';
 import 'package:rick_and_morty_demo/data/models/characters_page.dart';
+import 'package:rick_and_morty_demo/data/models/episode.dart';
 import 'package:rick_and_morty_demo/data/models/page_info.dart';
+import 'package:rick_and_morty_demo/data/models/place.dart';
 
 abstract final class MockObjects {
   static const kImageUrl =
@@ -33,6 +36,34 @@ abstract final class MockObjects {
     characters: [Character(id: '2', name: 'Morty Smith', status: .alive)],
   );
 
+  static const episodeMinimal = Episode(id: '1');
+
+  static const episodeMaximal = Episode(
+    id: '1',
+    name: 'Pilot',
+    code: 'S01E01',
+    airDate: 'December 2, 2013',
+  );
+
+  static const placeMinimal = Place();
+
+  static const placeMaximal = Place(name: 'Earth (C-137)');
+
+  static const characterDetailsMinimal = CharacterDetails(id: '1');
+
+  static const characterDetailsMaximal = CharacterDetails(
+    id: '1',
+    name: 'Rick Sanchez',
+    status: .alive,
+    species: 'Human',
+    type: 'Genius',
+    gender: 'Male',
+    imageUrl: kImageUrl,
+    origin: placeMaximal,
+    location: Place(name: 'Citadel of Ricks'),
+    episodes: [episodeMaximal],
+  );
+
   // API JSON
 
   static const JsonMap characterJsonMinimal = {'id': '1'};
@@ -50,6 +81,26 @@ abstract final class MockObjects {
   static const JsonMap charactersJsonMaximal = {
     'info': {'next': 2},
     'results': [characterJsonMaximal],
+  };
+
+  static const JsonMap episodeJsonMinimal = {'id': '1'};
+
+  static const JsonMap episodeJsonMaximal = {
+    'id': '1',
+    'name': 'Pilot',
+    'episode': 'S01E01',
+    'air_date': 'December 2, 2013',
+  };
+
+  static const JsonMap characterDetailsJsonMinimal = {'id': '1'};
+
+  static const JsonMap characterDetailsJsonMaximal = {
+    ...characterJsonMaximal,
+    'type': 'Genius',
+    'gender': 'Male',
+    'origin': {'name': 'Earth (C-137)'},
+    'location': {'name': 'Citadel of Ricks'},
+    'episode': [episodeJsonMaximal],
   };
 
   // Query results

@@ -21,4 +21,6 @@ abstract final class AppTokens {
   static const kCharacterCardAspectRatio = 0.72;
   // Start loading the next page when this close to the end of a list.
   static const kLoadMoreDistance = 400.0;
+
+  static const kDetailsImageMaxWidth = 320.0;
 }

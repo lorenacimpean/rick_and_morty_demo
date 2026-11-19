@@ -1,7 +1,11 @@
 import 'package:graphql/client.dart';
+import 'package:rick_and_morty_demo/data/graphql/fragments.dart';
 
 abstract final class CharacterQueries {
-  static final list = gql(_kList + _kCharacterSummary);
+  static final list = gql(_kList + kCharacterSummaryFragment);
+  static final details = gql(
+    _kDetails + kCharacterSummaryFragment + kEpisodeSummaryFragment,
+  );
 }
 
 // Raw strings: GraphQL variables start with $.
@@ -18,13 +22,22 @@ query Characters($page: Int, $filter: FilterCharacter) {
 }
 ''';
 
-// Fields of one character card. Shared by every query that lists characters.
-const _kCharacterSummary = '''
-fragment CharacterSummary on Character {
-  id
-  name
-  status
-  species
-  image
+// Three levels deep at most: the API rejects deeper queries.
+const _kDetails = r'''
+query Character($id: ID!) {
+  character(id: $id) {
+    ...CharacterSummary
+    type
+    gender
+    origin {
+      name
+    }
+    location {
+      name
+    }
+    episode {
+      ...EpisodeSummary
+    }
+  }
 }
 ''';

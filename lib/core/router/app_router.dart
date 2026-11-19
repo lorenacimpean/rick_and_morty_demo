@@ -1,17 +1,15 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:rick_and_morty_demo/core/router/app_routes.dart';
+import 'package:rick_and_morty_demo/ui/character_details/character_details_screen.dart';
 import 'package:rick_and_morty_demo/ui/characters/characters_screen.dart';
 import 'package:rick_and_morty_demo/ui/episodes/episodes_screen.dart';
 import 'package:rick_and_morty_demo/ui/favorites/favorites_screen.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_shell.dart';
 
-abstract final class AppRoutes {
-  static const characters = '/characters';
-  static const episodes = '/episodes';
-  static const favorites = '/favorites';
-}
-
 abstract final class AppRouter {
+  static const _kIdParam = 'id';
+
   // Same order as the branches below.
   static const _kTabs = <AppTab>[
     (
@@ -43,7 +41,11 @@ abstract final class AppRouter {
           body: shell,
         ),
         branches: [
-          _tab(AppRoutes.characters, const CharactersScreen()),
+          _tab(
+            AppRoutes.characters,
+            const CharactersScreen(),
+            routes: [_characterDetails],
+          ),
           _tab(AppRoutes.episodes, const EpisodesScreen()),
           _tab(AppRoutes.favorites, const FavoritesScreen()),
         ],
@@ -51,8 +53,27 @@ abstract final class AppRouter {
     ],
   );
 
-  static StatefulShellBranch _tab(String path, Widget screen) =>
-      StatefulShellBranch(
-        routes: [GoRoute(path: path, builder: (_, _) => screen)],
-      );
+  // /characters/:id, inside the Characters tab so the bottom bar stays.
+  static final _characterDetails = GoRoute(
+    path: ':$_kIdParam',
+    // Ids are numbers; anything else (e.g. from a deep link) goes back to the list.
+    redirect: (_, state) =>
+        _characterId(state) == null ? AppRoutes.characters : null,
+    builder: (_, state) =>
+        CharacterDetailsScreen(id: _characterId(state) ?? ''),
+  );
+
+  static String? _characterId(GoRouterState state) =>
+      switch (state.pathParameters[_kIdParam]) {
+        final id? when int.tryParse(id) != null => id,
+        _ => null,
+      };
+
+  static StatefulShellBranch _tab(
+    String path,
+    Widget screen, {
+    List<RouteBase> routes = const [],
+  }) => StatefulShellBranch(
+    routes: [GoRoute(path: path, builder: (_, _) => screen, routes: routes)],
+  );
 }

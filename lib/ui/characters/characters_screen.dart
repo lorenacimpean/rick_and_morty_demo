@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/di/app_dependencies.dart';
+import 'package:rick_and_morty_demo/core/router/app_routes.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
 import 'package:rick_and_morty_demo/data/models/character.dart';
 import 'package:rick_and_morty_demo/data/models/character_status.dart';
@@ -183,11 +185,8 @@ class _CharacterItem extends StatelessWidget {
       imageUrl: character.imageUrl,
       name: character.name,
       species: character.species,
-      status: switch (character.status) {
-        .alive => const StatusLabel.alive(),
-        .dead => const StatusLabel.dead(),
-        .unknown => const StatusLabel.unknown(),
-      },
+      status: StatusLabel.of(character.status),
+      onTap: () => context.go(AppRoutes.character(character.id)),
     );
   }
 }

@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/labels/status_label.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/media/character_image.dart';
 
 class CharacterCard extends StatelessWidget {
   final String imageUrl;
@@ -27,12 +27,7 @@ class CharacterCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: .stretch,
           children: [
-            Expanded(
-              child: AspectRatio(
-                aspectRatio: AppTokens.kSquareAspectRatio,
-                child: _CharacterImage(url: imageUrl),
-              ),
-            ),
+            Expanded(child: CharacterImage.standard(url: imageUrl)),
             Padding(
               padding: const .all(AppTokens.kSpacing300),
               child: _CharacterInfo(
@@ -43,26 +38,6 @@ class CharacterCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CharacterImage extends StatelessWidget {
-  final String url;
-
-  const _CharacterImage({required this.url});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return CachedNetworkImage(
-      imageUrl: url,
-      fit: .cover,
-      placeholder: (_, _) => ColoredBox(color: colors.surfaceContainerHigh),
-      errorWidget: (_, _, _) => ColoredBox(
-        color: colors.surfaceContainerHigh,
-        child: Icon(Icons.person_outline, color: colors.onSurfaceVariant),
       ),
     );
   }
