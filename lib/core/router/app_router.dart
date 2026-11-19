@@ -5,20 +5,28 @@ import 'package:rick_and_morty_demo/ui/character_details/character_details_scree
 import 'package:rick_and_morty_demo/ui/characters/characters_screen.dart';
 import 'package:rick_and_morty_demo/ui/episodes/episodes_screen.dart';
 import 'package:rick_and_morty_demo/ui/favorites/favorites_screen.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_shell.dart';
 
 abstract final class AppRouter {
   static const _kIdParam = 'id';
 
   // Same order as the branches below.
-  static const _kTabs = <AppTab>[
+  static final _kTabs = <AppTab>[
     (
+      key: AppKeys.shell.charactersTab,
       label: 'Characters',
       icon: Icons.people_outline,
       selectedIcon: Icons.people,
     ),
-    (label: 'Episodes', icon: Icons.tv_outlined, selectedIcon: Icons.tv),
     (
+      key: AppKeys.shell.episodesTab,
+      label: 'Episodes',
+      icon: Icons.tv_outlined,
+      selectedIcon: Icons.tv,
+    ),
+    (
+      key: AppKeys.shell.favoritesTab,
       label: 'Favorites',
       icon: Icons.favorite_outline,
       selectedIcon: Icons.favorite,

@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 
 enum _AppScaffoldKind { tab, details }
 
@@ -35,7 +36,7 @@ class AppScaffold extends StatelessWidget {
         automaticallyImplyLeading: false,
         leading: switch (_kind) {
           .tab => null,
-          .details => const BackButton(),
+          .details => BackButton(key: AppKeys.shell.back),
         },
         title: Text(
           title,

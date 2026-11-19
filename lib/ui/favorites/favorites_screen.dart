@@ -8,6 +8,7 @@ import 'package:rick_and_morty_demo/data/models/character.dart';
 import 'package:rick_and_morty_demo/ui/favorites/favorites_state.dart';
 import 'package:rick_and_morty_demo/ui/favorites/favorites_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/cards/character_grid.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_scaffold.dart';
@@ -38,9 +39,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _viewModel,
-      child: const AppScaffold.tab(
+      child: AppScaffold.tab(
+        key: AppKeys.favorites.screen,
         title: 'Favorites',
-        body: _FavoritesContent(),
+        body: const _FavoritesContent(),
       ),
     );
   }
@@ -56,10 +58,12 @@ class _FavoritesContent extends StatelessWidget {
       builder: (context, state) => switch (state) {
         FavoritesLoading() => const StateView.loading(),
         FavoritesError(:final error) => StateView.error(
+          key: AppKeys.favorites.error,
           message: error.message,
           onRetry: viewModel.retry,
         ),
-        FavoritesSuccess(characters: []) => const StateView.empty(
+        FavoritesSuccess(characters: []) => StateView.empty(
+          key: AppKeys.favorites.empty,
           message: 'No favorites yet. Tap the heart on a character to save it.',
         ),
         FavoritesSuccess(:final characters) => _FavoritesGrid(
@@ -78,6 +82,7 @@ class _FavoritesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      key: AppKeys.favorites.grid,
       slivers: [
         CharacterGrid(
           characters: characters,

@@ -4,9 +4,9 @@ import 'package:rick_and_morty_demo/ui/shared/components/buttons/app_choice_chip
 import 'package:rick_and_morty_demo/ui/shared/components/buttons/favorite_button.dart';
 
 const _kChoices = <AppChoice<String?>>[
-  (label: 'All', value: null),
-  (label: 'Option A', value: 'a'),
-  (label: 'Option B', value: 'b'),
+  (key: null, label: 'All', value: null),
+  (key: null, label: 'Option A', value: 'a'),
+  (key: null, label: 'Option B', value: 'b'),
 ];
 
 @AppPreview(group: 'AppChoiceChips', name: 'First selected')

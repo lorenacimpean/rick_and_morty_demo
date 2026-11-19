@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
 import 'package:rick_and_morty_demo/data/models/character.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/cards/character_card.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/labels/status_label.dart';
 
@@ -43,6 +44,7 @@ class _CharacterItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CharacterCard(
+      key: AppKeys.cards.character(character.id),
       imageUrl: character.imageUrl,
       name: character.name,
       species: character.species,

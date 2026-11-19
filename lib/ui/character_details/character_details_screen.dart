@@ -7,9 +7,10 @@ import 'package:rick_and_morty_demo/data/models/episode.dart';
 import 'package:rick_and_morty_demo/ui/character_details/character_details_state.dart';
 import 'package:rick_and_morty_demo/ui/character_details/character_details_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/buttons/favorite_button.dart';
-import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/cards/info_card.dart';
+import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/labels/app_label.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_scaffold.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/lists/episode_tile.dart';
@@ -57,6 +58,7 @@ class _CharacterDetailsLayout extends StatelessWidget {
     final viewModel = context.read<CharacterDetailsViewModel>();
     return BlocBuilder<CharacterDetailsViewModel, CharacterDetailsState>(
       builder: (context, state) => AppScaffold.details(
+        key: AppKeys.details.screen,
         title: switch (state) {
           CharacterDetailsSuccess(:final character) => character.name,
           _ => '',
@@ -64,6 +66,7 @@ class _CharacterDetailsLayout extends StatelessWidget {
         actions: [
           if (state case CharacterDetailsSuccess(:final isFavorite))
             FavoriteButton(
+              key: AppKeys.details.favoriteButton,
               isFavorite: isFavorite,
               onTap: viewModel.toggleFavorite,
             ),
@@ -71,6 +74,7 @@ class _CharacterDetailsLayout extends StatelessWidget {
         body: switch (state) {
           CharacterDetailsLoading() => const StateView.loading(),
           CharacterDetailsError(:final error) => StateView.error(
+            key: AppKeys.details.error,
             message: error.message,
             onRetry: viewModel.retry,
           ),
@@ -138,6 +142,7 @@ class _Profile extends StatelessWidget {
         CharacterImage.rounded(url: character.imageUrl),
         Text(
           character.name,
+          key: AppKeys.details.name,
           textAlign: .center,
           style: Theme.of(context).textTheme.headlineSmall,
         ),

@@ -7,6 +7,7 @@ import 'package:rick_and_morty_demo/data/models/season.dart';
 import 'package:rick_and_morty_demo/ui/episodes/episodes_state.dart';
 import 'package:rick_and_morty_demo/ui/episodes/episodes_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/state_view.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/layout/app_scaffold.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/lists/episode_tile.dart';
@@ -38,7 +39,11 @@ class _EpisodesScreenState extends State<EpisodesScreen> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _viewModel,
-      child: const AppScaffold.tab(title: 'Episodes', body: _EpisodesContent()),
+      child: AppScaffold.tab(
+        key: AppKeys.episodes.screen,
+        title: 'Episodes',
+        body: const _EpisodesContent(),
+      ),
     );
   }
 }
@@ -53,10 +58,12 @@ class _EpisodesContent extends StatelessWidget {
       builder: (context, state) => switch (state) {
         EpisodesLoading() => const StateView.loading(),
         EpisodesError(:final error) => StateView.error(
+          key: AppKeys.episodes.error,
           message: error.message,
           onRetry: viewModel.retry,
         ),
-        EpisodesSuccess(seasons: []) => const StateView.empty(
+        EpisodesSuccess(seasons: []) => StateView.empty(
+          key: AppKeys.episodes.empty,
           message: 'No episodes found',
         ),
         EpisodesSuccess(:final seasons) => _SeasonsList(seasons: seasons),
@@ -73,10 +80,14 @@ class _SeasonsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      key: AppKeys.episodes.list,
       slivers: [
         for (final season in seasons) ...[
           SliverToBoxAdapter(
-            child: SectionHeader(title: 'Season ${season.number}'),
+            child: SectionHeader(
+              key: AppKeys.episodes.season(season.number),
+              title: 'Season ${season.number}',
+            ),
           ),
           SliverPadding(
             padding: const .symmetric(horizontal: AppTokens.kSpacing400),
@@ -105,6 +116,7 @@ class _EpisodeItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EpisodeTile(
+      key: AppKeys.episodes.episode(episode.code),
       code: episode.code,
       name: episode.name,
       airDate: episode.airDate,

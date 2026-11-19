@@ -8,6 +8,7 @@ import 'package:rick_and_morty_demo/data/models/character_status.dart';
 import 'package:rick_and_morty_demo/ui/characters/characters_state.dart';
 import 'package:rick_and_morty_demo/ui/characters/characters_view_model.dart';
 import 'package:rick_and_morty_demo/ui/shared/app_error_message.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/buttons/app_choice_chips.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/cards/character_grid.dart';
 import 'package:rick_and_morty_demo/ui/shared/components/feedback/paging_footer.dart';
@@ -42,9 +43,10 @@ class _CharactersScreenState extends State<CharactersScreen> {
     // .value: the screen owns the view model, so the provider doesn't close it.
     return BlocProvider.value(
       value: _viewModel,
-      child: const AppScaffold.tab(
+      child: AppScaffold.tab(
+        key: AppKeys.characters.screen,
         title: 'Characters',
-        body: _CharactersLayout(),
+        body: const _CharactersLayout(),
       ),
     );
   }
@@ -75,10 +77,12 @@ class _CharactersContent extends StatelessWidget {
       builder: (context, state) => switch (state) {
         CharactersLoading() => const StateView.loading(),
         CharactersError(:final error) => StateView.error(
+          key: AppKeys.characters.error,
           message: error.message,
           onRetry: viewModel.retry,
         ),
-        CharactersSuccess(characters: []) => const StateView.empty(
+        CharactersSuccess(characters: []) => StateView.empty(
+          key: AppKeys.characters.empty,
           message: 'No characters match your search',
         ),
         final CharactersSuccess success => _CharactersGrid(state: success),
@@ -100,6 +104,7 @@ class _SearchBar extends StatelessWidget {
         spacing: AppTokens.kSpacing300,
         children: [
           AppSearchField(
+            key: AppKeys.characters.searchField,
             hint: 'Search characters',
             onChanged: viewModel.search,
           ),
@@ -111,11 +116,11 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _StatusChips extends StatelessWidget {
-  static const _kChoices = <AppChoice<CharacterStatus?>>[
-    (label: 'All', value: null),
-    (label: 'Alive', value: .alive),
-    (label: 'Dead', value: .dead),
-    (label: 'Unknown', value: .unknown),
+  static final _kChoices = <AppChoice<CharacterStatus?>>[
+    (key: AppKeys.characters.allChip, label: 'All', value: null),
+    (key: AppKeys.characters.aliveChip, label: 'Alive', value: .alive),
+    (key: AppKeys.characters.deadChip, label: 'Dead', value: .dead),
+    (key: AppKeys.characters.unknownChip, label: 'Unknown', value: .unknown),
   ];
 
   const _StatusChips();
@@ -150,6 +155,7 @@ class _CharactersGrid extends StatelessWidget {
         return false;
       },
       child: CustomScrollView(
+        key: AppKeys.characters.grid,
         slivers: [
           CharacterGrid(
             characters: state.characters,
@@ -172,10 +178,13 @@ class _GridFooter extends StatelessWidget {
     final viewModel = context.read<CharactersViewModel>();
     return switch (state) {
       CharactersSuccess(:final pageError?) => PagingFooter.error(
+        key: AppKeys.characters.pagingError,
         message: pageError.message,
         onRetry: viewModel.retry,
       ),
-      CharactersSuccess(isLoadingMore: true) => const PagingFooter.loading(),
+      CharactersSuccess(isLoadingMore: true) => PagingFooter.loading(
+        key: AppKeys.characters.pagingLoading,
+      ),
       _ => const SizedBox.shrink(),
     };
   }

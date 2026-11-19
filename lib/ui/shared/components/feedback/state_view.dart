@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 
 enum _StateViewKind { loading, error, empty }
 
@@ -88,6 +89,10 @@ class _RetryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FilledButton(onPressed: onTap, child: const Text('Try again'));
+    return FilledButton(
+      key: AppKeys.feedback.retry,
+      onPressed: onTap,
+      child: const Text('Try again'),
+    );
   }
 }
