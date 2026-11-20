@@ -36,7 +36,11 @@ class CoverageReport {
   String markdown({required String reportUrl, required String historyUrl}) => [
     '## Coverage',
     '',
-    '${_badgeImage()} &nbsp; **${_format(current.total)}%** ${_change()}',
+    _badgeImage(),
+    '',
+    '| Before (master) | After (this change) | Change |',
+    '| ---: | ---: | :---: |',
+    '| ${_cell(base?.total)} | **${_format(current.total)}%** | ${_change()} |',
     '',
     _verdict(),
     '',
@@ -52,9 +56,8 @@ class CoverageReport {
   }
 
   String _change() => switch (base) {
-    final base? =>
-      '${_delta(base.total, current.total)} vs master (${_format(base.total)}%)',
-    null => '(no master report yet)',
+    final base? => _delta(base.total, current.total),
+    null => 'no master report yet',
   };
 
   String _verdict() => passed
@@ -65,7 +68,9 @@ class CoverageReport {
     final rows = _changedFiles();
     if (rows.isEmpty) return const [];
     return [
-      '| File | master | This change | Change |',
+      '### Files with changed coverage',
+      '',
+      '| File | Before | After | Change |',
       '| --- | ---: | ---: | ---: |',
       for (final file in rows.take(_kMaxRows)) _row(file),
       if (rows.length > _kMaxRows)

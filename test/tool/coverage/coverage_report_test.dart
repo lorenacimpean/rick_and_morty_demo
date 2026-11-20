@@ -77,7 +77,10 @@ void main() {
       final text = markdown(report(total: 85));
 
       // Assert
-      expect(text, contains('**85.0%**'));
+      expect(
+        text,
+        contains('| Before (master) | After (this change) | Change |'),
+      );
       expect(text, contains('coverage-85.0%25-brightgreen'));
       expect(text, contains('✅ Above the 80.0% minimum'));
       expect(
@@ -91,7 +94,7 @@ void main() {
       final text = markdown(report(total: 85, files: {'lib/a.dart': 85}));
 
       // Assert
-      expect(text, contains('(no master report yet)'));
+      expect(text, contains('| — | **85.0%** | no master report yet |'));
       expect(text, isNot(contains('| File |')));
     });
 
@@ -112,7 +115,7 @@ void main() {
       final text = markdown(report(total: 82.5, base: base));
 
       // Assert
-      expect(text, contains('▲ +2.5% vs master (80.0%)'));
+      expect(text, contains('| 80.0% | **82.5%** | ▲ +2.5% |'));
     });
 
     test('shows a decrease against master', () {
@@ -123,7 +126,7 @@ void main() {
       final text = markdown(report(total: 85, base: base));
 
       // Assert
-      expect(text, contains('▼ −5.0% vs master (90.0%)'));
+      expect(text, contains('| 90.0% | **85.0%** | ▼ −5.0% |'));
     });
 
     test('shows no change against master', () {
@@ -134,7 +137,7 @@ void main() {
       final text = markdown(report(total: 85, base: base));
 
       // Assert
-      expect(text, contains('= 0.0% vs master'));
+      expect(text, contains('| 85.0% | **85.0%** | = 0.0% |'));
     });
 
     test('lists changed, new and removed files, biggest change first', () {
