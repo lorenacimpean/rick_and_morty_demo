@@ -34,6 +34,12 @@ jobs:
     name: Unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write # publishes the report to the gh-pages branch
+      pull-requests: write # posts the coverage comment
+    env:
+      PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      PR_NUMBER: ${{ github.event.number }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -41,16 +47,76 @@ jobs:
       - name: Set up Flutter
         uses: ./.github/actions/setup
 
-      - name: Run unit tests with coverage
-        run: make test FLUTTER=flutter DART=dart
+      - name: Install lcov
+        run: sudo apt-get update -q && sudo apt-get install -yq lcov
 
-      # Codecov comments on the PR and runs the 80% check (codecov.yml).
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+      - name: Run unit tests with coverage
+        run: make coverage FLUTTER=flutter DART=dart
+
+      # master's latest numbers, to compare against; none before the first master run.
+      - name: Read master's coverage
+        run: |
+          if git fetch -q --depth=1 origin gh-pages; then
+            git show FETCH_HEAD:master/summary.json > coverage/base.json || rm coverage/base.json
+            git show FETCH_HEAD:history.json > coverage/history.json || rm coverage/history.json
+          fi
+
+      - name: Pick where the report goes
+        id: target
+        run: |
+          dir=$([ -n "$PR_NUMBER" ] && echo "pr/$PR_NUMBER" || echo master)
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          echo "url=$PAGES_URL/$dir/" >> "$GITHUB_OUTPUT"
+
+      - name: Write the coverage report
+        id: report
+        run: >
+          dart run tool/coverage_report.dart
+          --lcov=coverage/lcov.info
+          --base=coverage/base.json
+          --history=coverage/history.json
+          --out=coverage/out
+          --sha=${{ github.sha }}
+          --report-url=${{ steps.target.outputs.url }}
+          --history-url=$PAGES_URL/
+
+      # PRs get their own folder; master also updates the history, badge and chart page.
+      - name: Prepare the site
+        run: |
+          mkdir -p "coverage/site/$TARGET_DIR"
+          cp -R coverage/html/. "coverage/site/$TARGET_DIR/"
+          if [ -z "$PR_NUMBER" ]; then
+            cp coverage/out/summary.json coverage/site/master/
+            cp coverage/out/history.json coverage/out/badge.json coverage/site/
+            cp tool/coverage/index.html coverage/site/
+          fi
+        env:
+          TARGET_DIR: ${{ steps.target.outputs.dir }}
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          files: coverage/lcov.info
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: coverage/site
+          keep_files: true
+          full_commit_message: Coverage for ${{ github.sha }}
+
+      - name: Show the report in the run summary
+        run: cat coverage/out/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on the PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: coverage
+          path: coverage/out/comment.md
+
+      # Last, so a failing PR still gets its report and comment.
+      - name: Require 80% coverage
+        if: steps.report.outputs.passed != 'true'
+        run: |
+          echo "::error::Coverage is ${{ steps.report.outputs.total }}%, below the 80% minimum"
+          exit 1
 
   integration:
     name: Integration tests (Android)
