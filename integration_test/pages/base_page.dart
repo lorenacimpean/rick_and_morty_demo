@@ -9,7 +9,6 @@ abstract class BasePage {
   // Longer than a page transition.
   static const _kTransition = Duration(milliseconds: 600);
   static const _kScrollStep = Offset(0, -300);
-  static const _kScrollToEnd = Offset(0, -10000);
 
   final WidgetTester tester;
 
@@ -55,9 +54,15 @@ abstract class BasePage {
     }
   }
 
+  // Drags in steps until nothing is left below; one long drag can bounce back first.
   Future<void> scrollToEnd(Finder scrollable) async {
-    await tester.drag(_scrollableIn(scrollable), _kScrollToEnd);
-    await tester.pump(kFrame);
+    final view = _scrollableIn(scrollable);
+    final stopwatch = Stopwatch()..start();
+    while (tester.state<ScrollableState>(view).position.extentAfter > 0) {
+      _failAfterTimeout(stopwatch, 'scrolling to the end of $scrollable');
+      await tester.drag(view, _kScrollStep);
+      await tester.pump(kFrame);
+    }
   }
 
   Finder _scrollableIn(Finder scrollable) =>

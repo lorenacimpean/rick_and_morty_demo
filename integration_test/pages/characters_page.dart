@@ -55,7 +55,8 @@ class CharactersPage extends BasePage {
   Future<void> scrollToBottom() => scrollToEnd(_grid);
 
   Future<void> openCharacter(String id) async {
-    await waitFor(_card(id));
+    // The card may be on a page that only loads while scrolling.
+    await waitFor(_grid);
     await scrollToCharacter(id);
     await tapAndSettle(_card(id));
   }

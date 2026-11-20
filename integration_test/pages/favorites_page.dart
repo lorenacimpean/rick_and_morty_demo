@@ -23,7 +23,7 @@ class FavoritesPage extends BasePage {
   // Actions
 
   Future<void> openCharacter(String id) async {
-    await waitFor(_card(id));
+    await waitFor(_grid);
     await scrollUntilFound(_card(id), scrollable: _grid);
     await tapAndSettle(_card(id));
   }
