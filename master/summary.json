@@ -1,0 +1,26 @@
+{
+  "total": 98.19004524886878,
+  "files": {
+    "lib/core/network/app_exception.dart": 100.0,
+    "lib/core/network/graphql_client_streams.dart": 100.0,
+    "lib/data/graphql/character_queries.dart": 100.0,
+    "lib/data/graphql/episode_queries.dart": 100.0,
+    "lib/data/models/character.dart": 100.0,
+    "lib/data/models/character_details.dart": 100.0,
+    "lib/data/models/characters_page.dart": 100.0,
+    "lib/data/models/episode.dart": 100.0,
+    "lib/data/models/episodes_page.dart": 100.0,
+    "lib/data/models/page_info.dart": 100.0,
+    "lib/data/models/place.dart": 100.0,
+    "lib/data/repos/characters_repository.dart": 100.0,
+    "lib/data/repos/episodes_repository.dart": 100.0,
+    "lib/data/repos/favorites_repository.dart": 60.0,
+    "lib/domain/use_cases/watch_episodes_by_season.dart": 100.0,
+    "lib/domain/use_cases/watch_favorite_characters.dart": 100.0,
+    "lib/ui/character_details/character_details_view_model.dart": 100.0,
+    "lib/ui/characters/characters_view_model.dart": 100.0,
+    "lib/ui/episodes/episodes_view_model.dart": 100.0,
+    "lib/ui/favorites/favorites_view_model.dart": 100.0,
+    "lib/ui/shared/app_cubit.dart": 100.0
+  }
+}
