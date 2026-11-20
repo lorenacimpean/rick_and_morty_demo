@@ -1,1 +1,0 @@
-genhtml --quiet coverage/lcov.info --output-directory coverage/html
