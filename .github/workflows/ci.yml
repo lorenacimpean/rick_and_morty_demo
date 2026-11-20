@@ -119,33 +119,25 @@ jobs:
           exit 1
 
   integration:
-    name: Integration tests (Android)
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    name: Integration tests (iOS)
+    runs-on: macos-latest
+    timeout-minutes: 60
     steps:
       - name: Check out
         uses: actions/checkout@v4
 
-      - name: Enable KVM for the emulator
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
       - name: Set up Flutter
         uses: ./.github/actions/setup
 
-      - name: Run integration tests on an emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          target: google_apis
-          disable-animations: true
-          script: make integration FLUTTER=flutter DART=dart ARGS="-d emulator-5554"
+      # A standard iPhone Pro (no foldables) on the newest iOS runtime that has one.
+      - name: Boot an iPhone simulator
+        id: simulator
+        run: |
+          udid=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries | sort_by(.key)[] | select(.key | contains("iOS"))
+              | .value[] | select(.name | test("^iPhone [0-9]+ Pro$"))] | last | .udid')
+          xcrun simctl bootstatus "$udid" -b
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Run integration tests on the simulator
+        run: make integration FLUTTER=flutter DART=dart ARGS="-d ${{ steps.simulator.outputs.udid }}"
