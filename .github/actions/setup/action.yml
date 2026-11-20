@@ -1,0 +1,22 @@
+name: Set up Flutter
+description: Installs the Flutter version pinned in .fvmrc, fetches packages and generates code.
+
+runs:
+  using: composite
+  steps:
+    - name: Read the pinned Flutter version
+      id: fvm
+      shell: bash
+      run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+    - name: Install Flutter ${{ steps.fvm.outputs.version }}
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ steps.fvm.outputs.version }}
+        channel: stable
+        cache: true
+
+    # Generated code is git-ignored, so every job builds it.
+    - name: Get packages and generate code
+      shell: bash
+      run: make build FLUTTER=flutter DART=dart

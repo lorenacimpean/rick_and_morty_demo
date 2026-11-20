@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
 
-typedef AppChoice<T> = ({String label, T value});
+typedef AppChoice<T> = ({Key? key, String label, T value});
 
 // A single-choice row of chips. Exactly one is selected.
 class AppChoiceChips<T> extends StatelessWidget {
@@ -24,6 +24,7 @@ class AppChoiceChips<T> extends StatelessWidget {
       children: [
         for (final choice in choices)
           ChoiceChip(
+            key: choice.key,
             label: Text(choice.label),
             selected: choice.value == selected,
             onSelected: (_) => onChanged(choice.value),

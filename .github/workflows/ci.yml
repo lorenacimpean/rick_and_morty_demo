@@ -1,0 +1,149 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+# A new push cancels the run still going for the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# The jobs run in parallel; each one is a separate check on the PR.
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: ./.github/actions/setup
+
+      - name: Check format and analyze
+        run: make analyze FLUTTER=flutter DART=dart
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # publishes the report to the gh-pages branch
+      pull-requests: write # posts the coverage comment
+    env:
+      PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      PR_NUMBER: ${{ github.event.number }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: ./.github/actions/setup
+
+      - name: Install lcov
+        run: sudo apt-get update -q && sudo apt-get install -yq lcov
+
+      - name: Run unit tests with coverage
+        run: make coverage FLUTTER=flutter DART=dart
+
+      # master's latest numbers, to compare against; none before the first master run.
+      - name: Read master's coverage
+        run: |
+          if git fetch -q --depth=1 origin gh-pages; then
+            git show FETCH_HEAD:master/summary.json > coverage/base.json || rm coverage/base.json
+            git show FETCH_HEAD:history.json > coverage/history.json || rm coverage/history.json
+          fi
+
+      - name: Pick where the report goes
+        id: target
+        run: |
+          dir=$([ -n "$PR_NUMBER" ] && echo "pr/$PR_NUMBER" || echo master)
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          echo "url=$PAGES_URL/$dir/" >> "$GITHUB_OUTPUT"
+
+      - name: Write the coverage report
+        id: report
+        run: >
+          dart run tool/coverage_report.dart
+          --lcov=coverage/lcov.info
+          --base=coverage/base.json
+          --history=coverage/history.json
+          --out=coverage/out
+          --sha=${{ github.sha }}
+          --report-url=${{ steps.target.outputs.url }}
+          --history-url=$PAGES_URL/
+
+      # PRs get their own folder; master also updates the history, badge and chart page.
+      - name: Prepare the site
+        run: |
+          mkdir -p "coverage/site/$TARGET_DIR"
+          cp -R coverage/html/. "coverage/site/$TARGET_DIR/"
+          if [ -z "$PR_NUMBER" ]; then
+            cp coverage/out/summary.json coverage/site/master/
+            cp coverage/out/history.json coverage/out/badge.json coverage/site/
+            cp tool/coverage/index.html coverage/site/
+          fi
+        env:
+          TARGET_DIR: ${{ steps.target.outputs.dir }}
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: coverage/site
+          keep_files: true
+          full_commit_message: Coverage for ${{ github.sha }}
+
+      - name: Show the report in the run summary
+        run: cat coverage/out/comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on the PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: coverage
+          path: coverage/out/comment.md
+
+      # Last, so a failing PR still gets its report and comment.
+      - name: Require 80% coverage
+        if: steps.report.outputs.passed != 'true'
+        run: |
+          echo "::error::Coverage is ${{ steps.report.outputs.total }}%, below the 80% minimum"
+          exit 1
+
+  integration:
+    name: Integration tests (iOS)
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: ./.github/actions/setup
+
+      # A standard iPhone Pro (no foldables) on the newest iOS runtime that has one.
+      - name: Boot an iPhone simulator
+        id: simulator
+        run: |
+          udid=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries | sort_by(.key)[] | select(.key | contains("iOS"))
+              | .value[] | select(.name | test("^iPhone [0-9]+ Pro$"))] | last | .udid')
+          xcrun simctl bootstatus "$udid" -b
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      # Real API and a simulator make these flakier, so 80% passing is enough.
+      # Failures still show in the log and in the run summary.
+      - name: Run integration tests on the simulator
+        run: |
+          make integration FLUTTER=flutter DART=dart \
+            ARGS="-d ${{ steps.simulator.outputs.udid }} --file-reporter json:build/integration_results.json" \
+            || echo "::warning::Some integration tests failed"
+          dart run tool/integration_pass_rate.dart build/integration_results.json --minimum=80

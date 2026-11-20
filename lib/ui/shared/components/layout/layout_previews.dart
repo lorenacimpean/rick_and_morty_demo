@@ -26,8 +26,18 @@ Widget appScaffoldTabRefresh() => AppScaffold.tab(
 );
 
 const _kTabs = <AppTab>[
-  (label: 'First', icon: Icons.circle_outlined, selectedIcon: Icons.circle),
-  (label: 'Second', icon: Icons.square_outlined, selectedIcon: Icons.square),
+  (
+    key: null,
+    label: 'First',
+    icon: Icons.circle_outlined,
+    selectedIcon: Icons.circle,
+  ),
+  (
+    key: null,
+    label: 'Second',
+    icon: Icons.square_outlined,
+    selectedIcon: Icons.square,
+  ),
 ];
 
 @AppPreview(group: 'AppShell', name: 'First tab selected')

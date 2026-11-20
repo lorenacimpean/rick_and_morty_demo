@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:rick_and_morty_demo/core/theme/app_tokens.dart';
+import 'package:rick_and_morty_demo/ui/shared/app_keys.dart';
 
 // Shown under a list while the next page loads, or when it failed.
 class PagingFooter extends StatelessWidget {
@@ -44,7 +45,11 @@ class _PagingError extends StatelessWidget {
       spacing: AppTokens.kSpacing200,
       children: [
         Text(message, style: Theme.of(context).textTheme.bodyMedium),
-        TextButton(onPressed: onRetry, child: const Text('Try again')),
+        TextButton(
+          key: AppKeys.feedback.pagingRetry,
+          onPressed: onRetry,
+          child: const Text('Try again'),
+        ),
       ],
     );
   }
